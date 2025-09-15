@@ -8,9 +8,10 @@ on:
     branches: [ "main" ]
 
 env:
-  # Nome da imagem no Docker Hub: <usuario>/<repo>
-  # Ex.: darlonvasata/meuapp
-  IMAGE_NAME: darlon/iftech:contador
+  # Nome base da imagem no Docker Hub (sem tag!)
+  IMAGE_NAME_BASE: darlon/iftech
+  # Tag fixa adicional que você quer publicar sempre na branch padrão:
+  STATIC_TAG: contador
   # Ajuste se o Dockerfile não estiver na raiz
   DOCKERFILE: Dockerfile
   CONTEXT: .
@@ -26,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4   # ✅ correção aqui
 
       - name: Set up QEMU (multi-arch emulação)
         uses: docker/setup-qemu-action@v3
@@ -45,11 +46,17 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ env.IMAGE_NAME_BASE }}
           tags: |
+            # latest na branch padrão (geralmente main)
             type=raw,value=latest,enable={{is_default_branch}}
+            # tag fixa "contador" na branch padrão
+            type=raw,value=${{ env.STATIC_TAG }},enable={{is_default_branch}}
+            # nome da branch (ex.: main, feature-x)
             type=ref,event=branch
+            # tag do git (ex.: v1.0.0)
             type=ref,event=tag
+            # sha curto
             type=sha,format=short
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
