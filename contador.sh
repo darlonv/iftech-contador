@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MSG="Hello world, IFTech!"
+MSG="Hello world, IFTech 2025!"
 
 COUNTER=1
 
